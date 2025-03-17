@@ -1,0 +1,40 @@
+---
+- name: Install Docker on EC2
+  hosts: all
+  become: yes
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # Обновить кэш каждый час
+
+    - name: Dependency installation
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Docker oficial key add
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Docker repo add
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Run Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+

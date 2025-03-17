@@ -1,0 +1,53 @@
+resource "aws_instance" "ubuntu_vm" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.medium"
+  key_name               = "armen"
+  subnet_id              = aws_subnet.public_subnet.id
+  vpc_security_group_ids        = [aws_security_group.ubuntu_sg.id]
+  associate_public_ip_address = true
+  tags = {
+    Name = "Armen-Ubuntu-24"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install python3",
+      "sudo apt install ansible",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("/home/armen/.ssh/armen.pem")
+      host        = self.public_ip
+      timeout     = "3m"
+      
+      bastion_host = "192.168.113.34"
+      bastion_port = "8080"
+      
+
+     }
+  } 
+
+  provisioner "local-exec" {
+    command = "ansible-playbook -i ${aws_instance.ubuntu_vm.public_ip} docker.yaml"
+  }  
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = [var.ami_owner] 
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-${var.ubuntu_version}-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+
