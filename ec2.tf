@@ -11,8 +11,8 @@ resource "aws_instance" "ubuntu_vm" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt update",
-      "sudo apt install python3-pip",
+      "sudo apt update -y",
+      "sudo apt install -y python3-pip",
       "pip3 install ansible",
     ]
 
