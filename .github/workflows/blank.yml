@@ -38,8 +38,8 @@ jobs:
           terraform init  
 
       - name: Terraform Plan
-        run: terraform plan \
-            -var="ssh_private_key=${{ secrets.SSH_PRIVATE_KEY }}" 
+        run: |
+          terraform plan 
 
       - name: Apply Terraform Configuration
         run: |
