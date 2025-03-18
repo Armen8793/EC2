@@ -46,7 +46,7 @@ variable "dest_cidr" {
 }
 
 variable "key" {
-  default = "armen"
+  default = "test"
 }
 
 variable "ami_owner" {
