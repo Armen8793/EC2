@@ -38,7 +38,7 @@ jobs:
           terraform init  
 
       - name: Terraform Plan
-        run: terraform plan -auto-approve \
+        run: terraform plan \
             -var="ssh_private_key=${{ secrets.SSH_PRIVATE_KEY }}" 
 
       - name: Apply Terraform Configuration
