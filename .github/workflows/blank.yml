@@ -64,10 +64,11 @@ jobs:
           chmod 600 /tmp/ssh_key.pem
           export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i /tmp/ssh_key.pem"
           export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i ${{ secrets.HOST_IP }}, -u ubuntu docker.yaml -b --private-key /tmp/ssh_key.pem
+          INSTANCE_IP=$(terraform output -raw instance_ip)
+          ansible-playbook -i $INSTANCE_IP, -u ubuntu docker.yaml -b --private-key /tmp/ssh_key.pem
 
-      - name: Get EC2 Public IP
-        run: echo "EC2_HOST=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+      - name: Cleanup
+        run: rm -f /tmp/ssh_key.pem
 
       - name: Log in to Amazon ECR
         run: |
@@ -97,9 +98,6 @@ jobs:
             docker compose pull
             docker compose up -d --force-recreate
           EOF
-
-      - name: Cleanup
-        run: rm -f private_key.pem
      
       - name: Scan Server Image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
