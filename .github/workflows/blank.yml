@@ -48,7 +48,7 @@ jobs:
 
       - name: Apply Terraform Configuration
         run: |
-          terraform apply -auto-approve \
+          terraform destroy -auto-approve \
             -var="ssh_private_key=${{ secrets.SSH_PRIVATE_KEY }}" 
       #   continue-on-error: true
 
