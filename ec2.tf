@@ -32,7 +32,7 @@ resource "aws_instance" "ubuntu_vm" {
     export ANSIBLE_CONFIG=/tmp/ansible.cfg
 
     echo "[ssh_connection]" > $ANSIBLE_CONFIG
-    echo "ssh_args = -o StrictHostKeyChecking=no -o IdentityFile=/dev/stdin" >> $ANSIBLE_CONFIG
+    echo "ssh_args = -o StrictHostKeyChecking=no -o IdentityFile=/proc/self/fd/0" >> $ANSIBLE_CONFIG
 
     ansible-playbook -i ${self.public_ip}, -u ubuntu docker.yaml -b
   EOT
