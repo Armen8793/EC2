@@ -19,7 +19,7 @@ resource "aws_instance" "ubuntu_vm" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = var.ssh_private_key
+      private_key = var.SSH_PRIVATE_KEY
       host        = self.public_ip
      }
   } 
