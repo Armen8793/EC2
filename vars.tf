@@ -1,5 +1,3 @@
-variable "ssh_private_key" {}
-
 variable "repo_names" {
   type    = list(string)
   default = ["bdg-repoarmentest-1", "bdg-repoarmentest-2", "bdg-repoarmentest-3"]
