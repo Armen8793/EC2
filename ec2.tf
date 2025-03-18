@@ -25,8 +25,11 @@ resource "aws_instance" "ubuntu_vm" {
   } 
   
   provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
     command = <<EOT
-      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${self.public_ip}, --private-key <(echo "$SSH_PRIVATE_KEY") -u ubuntu docker.yaml -b
+      export ANSIBLE_HOST_KEY_CHECKING=False
+      export SSH_KEY="$(echo "$SSH_PRIVATE_KEY")"
+      ansible-playbook -i ${self.public_ip}, --private-key <(echo "$SSH_KEY") -u ubuntu docker.yaml -b
     EOT
   }
 
