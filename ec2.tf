@@ -9,6 +9,7 @@ resource "aws_instance" "ubuntu_vm" {
     Name = "Armen-Ubuntu-24"
   }
 
+
   provisioner "remote-exec" {
     inline = [
       "sudo apt update -y",
