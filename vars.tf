@@ -4,6 +4,14 @@ variable "repo_names" {
 }
 
 
+variable "ssh_private_key" {
+  description = "Private SSH key for EC2 access"
+  type        = string
+  sensitive   = true
+}
+
+
+
 variable "region" {
   default = "us-west-1"
 }

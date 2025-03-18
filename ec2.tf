@@ -19,7 +19,7 @@ resource "aws_instance" "ubuntu_vm" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file("/home/armen/.ssh/armen.pem")
+      private_key = var.ssh_private_key
       host        = self.public_ip
      }
   } 

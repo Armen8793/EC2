@@ -39,8 +39,10 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve 
+      - name: Apply Terraform Configuration
+        run: |
+          terraform apply -auto-approve \
+            -var="ssh_private_key=${{ secrets.SSH_PRIVATE_KEY }}" 
       #   continue-on-error: true
 
       - name: Get EC2 Public IP
