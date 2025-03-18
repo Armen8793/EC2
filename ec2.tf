@@ -28,6 +28,7 @@ resource "aws_instance" "ubuntu_vm" {
   provisioner "local-exec" {
   command = <<EOT
     echo "$SSH_PRIVATE_KEY" > /tmp/ssh_key
+    cat /tmp/ssh_key
     chmod 600 /tmp/ssh_key
     eval $(ssh-agent -s)
     ssh-add /tmp/ssh_key > /dev/null
