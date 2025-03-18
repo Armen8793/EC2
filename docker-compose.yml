@@ -3,13 +3,8 @@ version: '3.9'
 services:
   server:
     restart: always
-    build:
-      context: ./server
-      dockerfile: Dockerfile.dev
+    image: ${ECR_SERVER_IMAGE}
     container_name: bookstore_server
-    volumes:
-      - /app/node_modules
-      - ./server:/app
     environment:
       - POSTGRES_URL=postgresql://postgres:postgres@db:5432/bookstore
     depends_on:
@@ -33,13 +28,8 @@ services:
 
   client:
     restart: always
-    build:
-      context: ./client
-      dockerfile: Dockerfile.dev
+    image: ${ECR_CLIENT_IMAGE}
     container_name: bookstore_client
-    volumes:
-      - /app/node_modules
-      - ./client:/app
     depends_on:
       - server
     networks:
@@ -50,9 +40,7 @@ services:
     depends_on:
       - server
       - client
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile.dev
+    image: ${ECR_NGINX_IMAGE}
     container_name: bookstore_nginx
     ports:
       - 8080:80
