@@ -11,6 +11,7 @@ env:
   AWS_REGION: us-west-1
   ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com
   SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
   
 jobs:
   terraform:
@@ -37,7 +38,8 @@ jobs:
           terraform init  
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -auto-approve \
+            -var="ssh_private_key=${{ secrets.SSH_PRIVATE_KEY }}" 
 
       - name: Apply Terraform Configuration
         run: |
