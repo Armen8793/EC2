@@ -9,7 +9,6 @@ resource "aws_instance" "ubuntu_vm" {
     Name = "Armen-Ubuntu-24"
   }
 
-
   provisioner "remote-exec" {
     inline = [
       "sudo apt update -y",
@@ -26,7 +25,7 @@ resource "aws_instance" "ubuntu_vm" {
   } 
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i ${aws_instance.ubuntu_vm.public_ip}, --private-key /tmp/private_key.pem  -o StrictHostKeyChecking=no docker.yaml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${aws_instance.ubuntu_vm.public_ip}, --private-key /tmp/private_key.pem docker.yaml"
   }  
 }
 
