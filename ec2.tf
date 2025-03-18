@@ -24,18 +24,15 @@ resource "aws_instance" "ubuntu_vm" {
      }
   } 
   
+ 
   provisioner "local-exec" {
-  interpreter = ["/bin/bash", "-c"]
-  command = <<EOT
-    export ANSIBLE_HOST_KEY_CHECKING=False
-    export ANSIBLE_PRIVATE_KEY_CONTENT="$SSH_PRIVATE_KEY"
-    export ANSIBLE_CONFIG=/tmp/ansible.cfg
-
-    echo "[ssh_connection]" > $ANSIBLE_CONFIG
-    echo "ssh_args = -o StrictHostKeyChecking=no -o IdentityFile=/proc/self/fd/0" >> $ANSIBLE_CONFIG
-
-    ansible-playbook -i ${self.public_ip}, -u ubuntu docker.yaml -b
-  EOT
+    command = <<EOT
+      eval $(ssh-agent -s)
+      echo "$SSH_PRIVATE_KEY" | ssh-add - > /dev/null
+      export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i <(echo "${var.SSH_PRIVATE_KEY}")"
+      export ANSIBLE_HOST_KEY_CHECKING=False
+      ansible-playbook -i ${self.public_ip}, -u ubuntu docker.yaml -b --private-key <(echo "$SSH_PRIVATE_KEY")
+    EOT
   }
 }
 
