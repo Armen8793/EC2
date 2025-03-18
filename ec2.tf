@@ -25,7 +25,7 @@ resource "aws_instance" "ubuntu_vm" {
   } 
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i ${aws_instance.ubuntu_vm.public_ip}, --private-key /tmp/private_key.pem docker.yaml"
+    command = "ansible-playbook -i ${aws_instance.ubuntu_vm.public_ip}, --private-key /tmp/private_key.pem  -o StrictHostKeyChecking=no docker.yaml"
   }  
 }
 
