@@ -26,9 +26,7 @@ resource "aws_instance" "ubuntu_vm" {
   
   provisioner "local-exec" {
     command = <<EOT
-      echo "$SSH_PRIVATE_KEY" > /tmp/private_key.pem
-      chmod 400 /tmp/private_key.pem
-      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${self.public_ip}, --private-key /tmp/private_key.pem -u ubuntu docker.yaml -b
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${self.public_ip}, --private-key <(echo "$SSH_PRIVATE_KEY") -u ubuntu docker.yaml -b
     EOT
   }
 
