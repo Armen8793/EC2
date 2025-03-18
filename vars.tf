@@ -3,14 +3,11 @@ variable "repo_names" {
   default = ["bdg-repoarmentest-1", "bdg-repoarmentest-2", "bdg-repoarmentest-3"]
 }
 
-
 variable "ssh_private_key" {
   description = "Private SSH key for EC2 access"
   type        = string
   sensitive   = true
 }
-
-
 
 variable "region" {
   default = "us-west-2"
