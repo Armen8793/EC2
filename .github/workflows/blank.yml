@@ -33,6 +33,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Deploy to EC2
+        run: |
+          echo "$SSH_KEY" > /tmp/private_key.pem
+          chmod 600 /tmp/private_key.pem
+
       - name: Initialise project and view terraform plan
         run: |
           terraform init  
@@ -78,8 +83,8 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          echo "$SSH_KEY" > private_key.pem
-          chmod 600 private_key.pem
+          echo "$SSH_KEY" > /tmp/private_key.pem
+          chmod 600 /tmp/private_key.pem
 
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$EC2_HOST <<EOF
             set -e
