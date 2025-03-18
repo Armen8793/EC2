@@ -8,7 +8,7 @@ on:
     branches:
       - main  
 env:
-  AWS_REGION: us-west-1
+  AWS_REGION: us-west-2
   ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com
   SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Apply Terraform Configuration
         run: |
-          terraform destroy -auto-approve \
+          terraform apply -auto-approve \
             -var="ssh_private_key=${{ secrets.SSH_PRIVATE_KEY }}" 
       #   continue-on-error: true
 
