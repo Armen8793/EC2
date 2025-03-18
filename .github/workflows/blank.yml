@@ -1,0 +1,111 @@
+name: Terraform Automation
+
+on:
+  push:
+    branches:
+      - main  
+  pull_request:
+    branches:
+      - main  
+env:
+  AWS_REGION: us-west-1
+  ECR_REPO: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com
+  SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  
+jobs:
+  terraform:
+    runs-on: ubuntu-latest  
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2 
+        with:
+          terraform_version: 1.5.0  
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Initialise project and view terraform plan
+        run: |
+          terraform init  
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve 
+      #   continue-on-error: true
+
+      - name: Get EC2 Public IP
+        run: echo "EC2_HOST=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+
+      - name: Wait for EC2 to be Ready
+        run: |
+          echo "Waiting for EC2 to be available..."
+          sleep 30
+          while ! nc -z $EC2_HOST 22; do
+            sleep 5
+          done
+
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+
+          
+      - name: Build and Push Docker Images
+        run: |
+          IMAGES=("server" "client" "nginx")
+          for IMAGE in "${IMAGES[@]}"; do
+            docker build -t $ECR_REPO/bookstore-${IMAGE}:latest ./${IMAGE}
+            docker push $ECR_REPO/bookstore-${IMAGE}:latest
+          done
+
+      - name: Deploy to EC2
+        run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$EC2_HOST <<EOF
+            set -e
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+            cd ~/bookstore || mkdir ~/bookstore && cd ~/bookstore
+            echo "ECR_SERVER_IMAGE=$ECR_REPO/bookstore-server:latest" > .env
+            echo "ECR_CLIENT_IMAGE=$ECR_REPO/bookstore-client:latest" >> .env
+            echo "ECR_NGINX_IMAGE=$ECR_REPO/bookstore-nginx:latest" >> .env
+            docker compose pull
+            docker compose up -d --force-recreate
+          EOF
+
+      - name: Cleanup
+        run: rm -f private_key.pem
+     
+      - name: Scan Server Image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: bdg-repoarmentest-1:latest
+          format: 'table'
+          ignore-unfixed: true
+        continue-on-error: false 
+
+      - name: Scan Client Image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: bdg-repoarmentest-2:latest
+          format: 'table'
+          ignore-unfixed: true
+        continue-on-error: false 
+
+      - name: Scan Nginx Image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: bdg-repoarmentest-3:latest
+          format: 'table'
+          ignore-unfixed: true
+        continue-on-error: false
