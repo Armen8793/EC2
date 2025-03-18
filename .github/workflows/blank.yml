@@ -64,7 +64,8 @@ jobs:
           chmod 600 /tmp/ssh_key.pem
           export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i /tmp/ssh_key.pem"
           export ANSIBLE_HOST_KEY_CHECKING=False
-          INSTANCE_IP=$(terraform output -raw instance_ip)
+          INSTANCE_IP=$(terraform output instance_ip)
+          echo "Instance IP: $INSTANCE_IP
           ansible-playbook -i $INSTANCE_IP, -u ubuntu docker.yaml -b --private-key /tmp/ssh_key.pem
 
       - name: Cleanup
