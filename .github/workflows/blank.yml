@@ -33,11 +33,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy to EC2
-        run: |
-          echo "$SSH_KEY" > /tmp/private_key.pem
-          chmod 600 /tmp/private_key.pem
-
       - name: Initialise project and view terraform plan
         run: |
           terraform init  
@@ -61,16 +56,18 @@ jobs:
           terraform apply -auto-approve 
       #   continue-on-error: true
 
+      - name: Set up SSH key from GitHub secrets
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > /tmp/ssh_key.pem
+          chmod 600 /tmp/ssh_key.pem
+          export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i /tmp/ssh_key.pem"
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          ansible-playbook -i ${{ secrets.HOST_IP }}, -u ubuntu docker.yaml -b --private-key /tmp/ssh_key.pem
+
       - name: Get EC2 Public IP
         run: echo "EC2_HOST=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
-
-      - name: Wait for EC2 to be Ready
-        run: |
-          echo "Waiting for EC2 to be available..."
-          sleep 30
-          while ! nc -z $EC2_HOST 22; do
-            sleep 5
-          done
 
       - name: Log in to Amazon ECR
         run: |
