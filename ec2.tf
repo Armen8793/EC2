@@ -21,12 +21,6 @@ resource "aws_instance" "ubuntu_vm" {
       user        = "ubuntu"
       private_key = file("/home/armen/.ssh/armen.pem")
       host        = self.public_ip
-      timeout     = "3m"
-      
-      bastion_host = "192.168.113.34"
-      bastion_port = "8080"
-      
-
      }
   } 
 
