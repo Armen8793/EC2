@@ -79,27 +79,32 @@ jobs:
       - name: Build and Push Docker Images
         run: |
           IMAGES=("server" "client" "nginx")
-          for IMAGE in "${IMAGES[@]}"; do
-            docker build --no-cache -t $ECR_REPO/bookstore-${IMAGE}:latest -f ./${IMAGE}/Dockerfile.dev ./${IMAGE}
-            docker push $ECR_REPO/bookstore-${IMAGE}:latest
+          REPOS=("bdg-repoarmentest-1" "bdg-repoarmentest-2" "bdg-repoarmentest-3")
+    
+          for i in ${!IMAGES[@]}; do
+            IMAGE=${IMAGES[$i]}
+            REPO=${REPOS[$i]}
+      
+            docker build --no-cache -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/$REPO:latest -f ./${IMAGE}/Dockerfile.dev ./${IMAGE}
+            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/$REPO:latest
           done
-
 
       - name: Deploy to EC2
         run: |
           echo "$SSH_KEY" > /tmp/private_key.pem
           chmod 600 /tmp/private_key.pem
 
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$EC2_HOST <<EOF
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ubuntu@$EC2_HOST <<EOF 
             set -e
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
             cd ~/bookstore || mkdir ~/bookstore && cd ~/bookstore
-            echo "ECR_SERVER_IMAGE=$ECR_REPO/bookstore-server:latest" > .env
-            echo "ECR_CLIENT_IMAGE=$ECR_REPO/bookstore-client:latest" >> .env
-            echo "ECR_NGINX_IMAGE=$ECR_REPO/bookstore-nginx:latest" >> .env
+            echo "ECR_SERVER_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/bdg-repoarmentest-1:latest" > .env
+            echo "ECR_CLIENT_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/bdg-repoarmentest-2:latest" >> .env
+            echo "ECR_NGINX_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/bdg-repoarmentest-3:latest" >> .env
             docker compose pull
             docker compose up -d --force-recreate
           EOF
+
      
       - name: Scan Server Image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
