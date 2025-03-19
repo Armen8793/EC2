@@ -85,8 +85,8 @@ jobs:
             IMAGE=${IMAGES[$i]}
             REPO=${REPOS[$i]}
       
-            docker build --no-cache -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/$REPO:latest -f ./${IMAGE}/Dockerfile.dev ./${IMAGE}
-            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/$REPO:latest
+            docker build --no-cache -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:latest -f ./${IMAGE}/Dockerfile.dev ./${IMAGE}
+            docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:latest
           done
 
       - name: Deploy to EC2
@@ -98,9 +98,9 @@ jobs:
             set -e
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
             cd ~/bookstore || mkdir ~/bookstore && cd ~/bookstore
-            echo "ECR_SERVER_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/bdg-repoarmentest-1:latest" > .env
-            echo "ECR_CLIENT_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/bdg-repoarmentest-2:latest" >> .env
-            echo "ECR_NGINX_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-1.amazonaws.com/bdg-repoarmentest-3:latest" >> .env
+            echo "ECR_SERVER_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/bdg-repoarmentest-1:latest" > .env
+            echo "ECR_CLIENT_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/bdg-repoarmentest-2:latest" >> .env
+            echo "ECR_NGINX_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/bdg-repoarmentest-3:latest" >> .env
             docker compose pull
             docker compose up -d --force-recreate
           EOF
