@@ -1,6 +1,6 @@
 ---
 - name: Install Docker on EC2
-  hosts: localhost
+  hosts: servers
   become: yes
   tasks:
     - name: apt update
