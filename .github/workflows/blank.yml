@@ -60,8 +60,10 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          echo "$SSH_PRIVATE_KEY" > /tmp/ssh_key.pem
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
           chmod 600 /tmp/ssh_key.pem
+          eval $(ssh-agent -s)
+          ssh-add /tmp/ssh_key.pem
           export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i /tmp/ssh_key.pem"
           export ANSIBLE_HOST_KEY_CHECKING=False
           INSTANCE_IP=$(terraform output instance_ip)
