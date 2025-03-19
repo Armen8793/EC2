@@ -80,9 +80,10 @@ jobs:
         run: |
           IMAGES=("server" "client" "nginx")
           for IMAGE in "${IMAGES[@]}"; do
-            docker build -t $ECR_REPO/bookstore-${IMAGE}:latest ./${IMAGE}
+            docker build --no-cache -t $ECR_REPO/bookstore-${IMAGE}:latest -f ./${IMAGE}/Dockerfile.dev ./${IMAGE}
             docker push $ECR_REPO/bookstore-${IMAGE}:latest
           done
+
 
       - name: Deploy to EC2
         run: |
