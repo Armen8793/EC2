@@ -68,7 +68,7 @@ jobs:
           export ANSIBLE_HOST_KEY_CHECKING=False
           INSTANCE_IP=$(terraform output instance_ip)
           echo "Instance IP: $INSTANCE_IP"
-          ansible-playbook -i "$INSTANCE_IP," -u ubuntu -b --private-key /tmp/ssh_key.pem docker.yaml
+          ansible-playbook -i inventory -u ubuntu -b --private-key /tmp/ssh_key.pem docker.yaml
 
       - name: Cleanup
         run: rm -f /tmp/ssh_key.pem
