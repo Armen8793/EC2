@@ -56,6 +56,12 @@ jobs:
           terraform apply -auto-approve 
       #   continue-on-error: true
 
+      - name: Get EC2 Public IP
+        id: get_ip
+        run: |
+          EC2_PUBLIC_IP=$(terraform output -raw ec2_public_ip)
+          echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
+
       - name: Set up SSH key from GitHub secrets
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -91,10 +97,10 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          echo "$SSH_KEY" > /tmp/private_key.pem
-          chmod 600 /tmp/private_key.pem
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
+          chmod 600 /tmp/ssh_key.pem
 
-          ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ubuntu@$EC2_HOST <<EOF 
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key.pem ubuntu@$EC2_PUBLIC_IP <<EOF 
             set -e
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
             cd ~/bookstore || mkdir ~/bookstore && cd ~/bookstore
