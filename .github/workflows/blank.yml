@@ -66,9 +66,7 @@ jobs:
           ssh-add /tmp/ssh_key.pem
           export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i /tmp/ssh_key.pem"
           export ANSIBLE_HOST_KEY_CHECKING=False
-          INSTANCE_IP=$(terraform output instance_ip)
-          echo "Instance IP: $INSTANCE_IP"
-          ansible-playbook -i inventory -u ubuntu -b --private-key /tmp/ssh_key.pem docker.yaml
+          ansible-playbook -i inventory docker.yaml
 
       - name: Cleanup
         run: rm -f /tmp/ssh_key.pem

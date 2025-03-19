@@ -1,12 +1,12 @@
 ---
 - name: Install Docker on EC2
-  hosts: all
+  hosts: servers
   become: yes
   tasks:
     - name: apt update
       apt:
         update_cache: yes
-        cache_valid_time: 3600  # Обновить кэш каждый час
+        cache_valid_time: 3600  
 
     - name: Dependency installation
       apt:
