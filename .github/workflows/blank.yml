@@ -57,6 +57,7 @@ jobs:
           terraform apply -auto-approve 
       #   continue-on-error: true
 
+<<<<<<< HEAD
       - name: Get EC2 Public IP
         id: get_ip
         env:
@@ -86,6 +87,8 @@ jobs:
           export ANSIBLE_HOST_KEY_CHECKING=False
           ansible-playbook -i inventory docker.yaml
 
+=======
+>>>>>>> 26b24d0 (fix)
       - name: Cleanup
         run: rm -f /tmp/ssh_key.pem
 
@@ -107,23 +110,19 @@ jobs:
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:latest
           done
 
-      - name: Deploy to EC2
+     - name: Set up SSH key from GitHub secrets
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
           chmod 600 /tmp/ssh_key.pem
+          eval $(ssh-agent -s)
+          ssh-add /tmp/ssh_key.pem
+          export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i /tmp/ssh_key.pem"
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          ansible-playbook -i inventory docker.yaml
 
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key.pem ubuntu@$EC2_PUBLIC_IP <<EOF 
-            set -e
-            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
-            cd ~/bookstore || mkdir ~/bookstore && cd ~/bookstore
-            echo "ECR_SERVER_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/bdg-repoarmentest-1:latest" > .env
-            echo "ECR_CLIENT_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/bdg-repoarmentest-2:latest" >> .env
-            echo "ECR_NGINX_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/bdg-repoarmentest-3:latest" >> .env
-            docker compose pull
-            docker compose up -d --force-recreate
-          EOF
 
-     
       - name: Scan Server Image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
