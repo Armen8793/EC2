@@ -57,7 +57,7 @@ jobs:
           terraform apply -auto-approve 
       #   continue-on-error: true
 
-<<<<<<< HEAD
+
       - name: Get EC2 Public IP
         id: get_ip
         env:
@@ -87,8 +87,6 @@ jobs:
           export ANSIBLE_HOST_KEY_CHECKING=False
           ansible-playbook -i inventory docker.yaml
 
-=======
->>>>>>> 26b24d0 (fix)
       - name: Cleanup
         run: rm -f /tmp/ssh_key.pem
 
@@ -110,7 +108,7 @@ jobs:
             docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:latest
           done
 
-     - name: Set up SSH key from GitHub secrets
+      - name: Set up SSH key from GitHub secrets
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
