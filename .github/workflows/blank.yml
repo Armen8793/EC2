@@ -60,13 +60,9 @@ jobs:
       - name: Get EC2 Public IP
         id: get_ip
         run: |
-          EC2_PUBLIC_IP=$(terraform output -raw ec2_public_ip | tr -d '"')
-          echo "Extracted EC2_PUBLIC_IP=$EC2_PUBLIC_IP"
+          EC2_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $EC2_INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
           echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
-
-
-
-
+          
 
       - name: Set up SSH key from GitHub secrets
         env:
