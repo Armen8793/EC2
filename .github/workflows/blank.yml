@@ -59,11 +59,16 @@ jobs:
       - name: Get EC2 Public IP
         id: get_ip
         run: |
-          terraform output ec2_public_ip | tee ec2_ip_raw.txt
-          EC2_PUBLIC_IP=$(cat ec2_ip_raw.txt | sed 's/"//g' | tr -d '[:space:]')
+          EC2_PUBLIC_IP=$(terraform output ec2_public_ip | awk 'NR==1 {gsub(/"/, "", $0); print}')
           echo "Extracted IP: $EC2_PUBLIC_IP"
           echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
         shell: bash
+
+
+      - name: Debug EC2 Public IP
+        run: echo "Using EC2_PUBLIC_IP=$EC2_PUBLIC_IP"
+        shell: bash
+
 
       - name: Set up SSH key from GitHub secrets
         env:
