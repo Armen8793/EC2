@@ -60,9 +60,10 @@ jobs:
       - name: Get EC2 Public IP
         id: get_ip
         run: |
-          EC2_PUBLIC_IP=$(terraform output -raw ec2_public_ip | awk '{gsub(/[^0-9.]/, ""); print}')
+          EC2_PUBLIC_IP=$(terraform output -raw ec2_public_ip | tr -d '"')
           echo "Extracted EC2_PUBLIC_IP=$EC2_PUBLIC_IP"
           echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
+
 
 
 
