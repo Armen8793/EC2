@@ -17,6 +17,7 @@
           - "ECR_SERVER_IMAGE={{ ECR_SERVER_IMAGE }}"
           - "ECR_CLIENT_IMAGE={{ ECR_CLIENT_IMAGE }}"
           - "ECR_NGINX_IMAGE={{ ECR_NGINX_IMAGE }}"
+
           
     - name: apt update
       apt:
