@@ -48,11 +48,24 @@
         curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
 
+    - name: Set AWS ECR Image Variables
+      set_fact:
+        AWS_ACCOUNT_ID: "{{ lookup('env', 'AWS_ACCOUNT_ID') }}"
+        AWS_REGION: "{{ aws_region }}"
+        IMAGES: ["server", "client", "nginx"]
+        REPOS: ["bdg-repoarmentest-1", "bdg-repoarmentest-2", "bdg-repoarmentest-3"]
+
+
     - name: Copy docker-compose.yml to EC2
       copy:
         src: ./docker-compose.yml
         dest: /home/ubuntu/docker-compose.yml
 
     - name: Start Docker Compose
-      shell: |
-        cd /home/ubuntu && docker-compose up -d
+      command: docker-compose up -d
+      args:
+        chdir: /home/ubuntu
+      environment:
+        ECR_SERVER_IMAGE: "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ AWS_REGION }}.amazonaws.com/{{ REPOS[0] }}:latest"
+        ECR_CLIENT_IMAGE: "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ AWS_REGION }}.amazonaws.com/{{ REPOS[1] }}:latest"
+        ECR_NGINX_IMAGE: "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ AWS_REGION }}.amazonaws.com/{{ REPOS[2] }}:latest"
