@@ -94,6 +94,7 @@ jobs:
       - name: Set up SSH key from GitHub secrets
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          AWS_REGION: us-west-2
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_key.pem
           chmod 600 /tmp/ssh_key.pem
@@ -101,7 +102,13 @@ jobs:
           ssh-add /tmp/ssh_key.pem
           export ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=no -i /tmp/ssh_key.pem"
           export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i inventory docker.yaml
+          ansible-playbook deploy.yml -i inventory \
+            --extra-vars "AWS_REGION=${{ env.AWS_REGION }}" \
+            --extra-vars "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" \
+            --extra-vars "ECR_SERVER_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/bdg-repoarmentest-1:latest" \
+            --extra-vars "ECR_CLIENT_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/bdg-repoarmentest-2:latest" \
+            --extra-vars "ECR_NGINX_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/bdg-repoarmentest-3:latest"
+            
 
 
       - name: Scan Server Image with Trivy
