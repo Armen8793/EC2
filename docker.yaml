@@ -3,20 +3,20 @@
   hosts: servers
   become: yes
   vars:
-    AWS_REGION: "{{ aws_region }}"
-    AWS_ACCOUNT_ID: "{{ aws_account_id }}"
-    ECR_SERVER_IMAGE: "{{ ecr_server_image }}"
-    ECR_CLIENT_IMAGE: "{{ ecr_client_image }}"
-    ECR_NGINX_IMAGE: "{{ ecr_nginx_image }}"
+    aws_region: "{{ aws_region }}"
+    aws_account_id: "{{ aws_account_id }}"
+    ecr_server_image: "{{ ecr_server_image }}"
+    ecr_client_image: "{{ ecr_client_image }}"
+    ecr_nginx_image: "{{ ecr_nginx_image }}"
   tasks:
     - name: Debug AWS Variables
       debug:
         msg:
-          - "AWS_REGION={{ AWS_REGION }}"
-          - "AWS_ACCOUNT_ID={{ AWS_ACCOUNT_ID }}"
-          - "ECR_SERVER_IMAGE={{ ECR_SERVER_IMAGE }}"
-          - "ECR_CLIENT_IMAGE={{ ECR_CLIENT_IMAGE }}"
-          - "ECR_NGINX_IMAGE={{ ECR_NGINX_IMAGE }}"
+          - "AWS_REGION={{ aws_region }}"
+          - "AWS_ACCOUNT_ID={{ aws_account_id }}"
+          - "ECR_SERVER_IMAGE={{ ecr_server_image }}"
+          - "ECR_CLIENT_IMAGE={{ ecr_client_image }}"
+          - "ECR_NGINX_IMAGE={{ ecr_nginx_image }}"
 
           
     - name: apt update
