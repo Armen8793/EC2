@@ -2,7 +2,22 @@
 - name: Install Docker on EC2
   hosts: servers
   become: yes
+  vars:
+    AWS_REGION: "{{ aws_region }}"
+    AWS_ACCOUNT_ID: "{{ aws_account_id }}"
+    ECR_SERVER_IMAGE: "{{ ecr_server_image }}"
+    ECR_CLIENT_IMAGE: "{{ ecr_client_image }}"
+    ECR_NGINX_IMAGE: "{{ ecr_nginx_image }}"
   tasks:
+    - name: Debug AWS Variables
+      debug:
+        msg:
+          - "AWS_REGION={{ AWS_REGION }}"
+          - "AWS_ACCOUNT_ID={{ AWS_ACCOUNT_ID }}"
+          - "ECR_SERVER_IMAGE={{ ECR_SERVER_IMAGE }}"
+          - "ECR_CLIENT_IMAGE={{ ECR_CLIENT_IMAGE }}"
+          - "ECR_NGINX_IMAGE={{ ECR_NGINX_IMAGE }}"
+          
     - name: apt update
       apt:
         update_cache: yes
@@ -65,7 +80,3 @@
       command: docker-compose up -d
       args:
         chdir: /home/ubuntu
-      environment:
-        ECR_SERVER_IMAGE: "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ AWS_REGION }}.amazonaws.com/{{ REPOS[0] }}:latest"
-        ECR_CLIENT_IMAGE: "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ AWS_REGION }}.amazonaws.com/{{ REPOS[1] }}:latest"
-        ECR_NGINX_IMAGE: "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ AWS_REGION }}.amazonaws.com/{{ REPOS[2] }}:latest"
